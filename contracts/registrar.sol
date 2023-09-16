@@ -74,5 +74,10 @@ contract ComputeRegistrar is ERC721, ERC721URIStorage, Ownable {
     function count() public view returns (uint256) {
         return _tokenIdCounter.current();
     }
+
+    // Withdraw contract balance to the owner
+    function withdraw() external onlyOwner {
+        payable(owner()).transfer(address(this).balance);
+    }
 }
 

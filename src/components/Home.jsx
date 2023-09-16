@@ -7,7 +7,7 @@ import ComputeRegistrar from '../../artifacts/contracts/registrar.sol/ComputeReg
 //const contractAddress = 'YOUR_DEPLOYED_CONTRACT_ADDRESS';
 //const contractAddress = '0x5FbDB2315678afecb367f032d93F642f64180aa3';
 //const contractAddress = '0x00cc52Ee2180D41d63eA490C0789E04C56285fe7';
-const contractAddress = '0x0F19dbDe394F849129A56cDA3b5340a9BE171e2D';
+const contractAddress = '0x0a5ea7375aD9C59cd21A0AAfB527df9A8690f82e';
 
 const provider = new ethers.providers.Web3Provider(window.ethereum);
 
@@ -82,6 +82,14 @@ function NFTImage({ tokenId, getCount }) {
     getCount();
   };
 
+  const withdrawFunds = async () => {
+    const connection = contract.connect(signer);
+    //const addr = connection.address;
+    const addr = await signer.getAddress();
+    const result = await contract.withdraw();
+    await result.wait();
+  }
+
   async function getURI() {
     const uri = await contract.tokenURI(tokenId);
     alert(uri);
@@ -99,6 +107,13 @@ function NFTImage({ tokenId, getCount }) {
           <button className="btn btn-secondary" onClick={getURI}>
             Taken! Show URI
           </button>
+        )}
+	{isMinted && tokenId == 0 ? (
+          <button className="btn btn-primary" onClick={withdrawFunds}>
+            Withdrawl
+          </button>
+        ) : (
+          <button></button>
         )}
       </div>
     </div>
