@@ -6,14 +6,17 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 
-contract FiredGuys is ERC721, ERC721URIStorage, Ownable {
+contract ComputeRegistrar is ERC721, ERC721URIStorage, Ownable {
     using Counters for Counters.Counter;
 
     Counters.Counter private _tokenIdCounter;
+    
+    // Store the minimum mint price
+    uint256 public minMintPrice = 0.05 ether; // Default minimum mint price
 
     mapping(string => uint8) existingURIs;
 
-    constructor() ERC721("FiredGuys", "FYR") {}
+    constructor() ERC721("ComputeRegistrar", "CMPTR") {}
 
     function _baseURI() internal pure override returns (string memory) {
         return "ipfs://";
@@ -46,12 +49,17 @@ contract FiredGuys is ERC721, ERC721URIStorage, Ownable {
         return existingURIs[uri] == 1;
     }
 
+    // Function to set the minimum mint price, callable only by the contract owner
+    function setMinMintPrice(uint256 newMinMintPrice) external onlyOwner {
+        minMintPrice = newMinMintPrice;
+    }
+
     function payToMint(
         address recipient,
         string memory metadataURI
     ) public payable returns (uint256) {
         require(existingURIs[metadataURI] != 1, 'NFT already minted!');
-        require (msg.value >= 0.05 ether, 'Need to pay up!');
+        require (msg.value >= minMintPrice, 'Mint price too low or need to pay up!');
 
         uint256 newItemId = _tokenIdCounter.current();
         _tokenIdCounter.increment();
@@ -66,6 +74,5 @@ contract FiredGuys is ERC721, ERC721URIStorage, Ownable {
     function count() public view returns (uint256) {
         return _tokenIdCounter.current();
     }
-
-
 }
+
